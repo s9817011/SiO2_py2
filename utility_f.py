@@ -34,9 +34,8 @@ def data_open(folder_path):
                 # 用提取到的數字來替換原本的文件名
                 temperature = int(match.group(1)) if match else "Unknown temperature"
                 data_list.append((temperature, x, y))
-    # 按照溫度排序，x[0]前面加"-"會變成由大到小
-    data_list.sort(key=lambda x: x[0])
     return data_list
+
 class Plot:     
     def __init__(self):
         self.visible = []
@@ -45,6 +44,7 @@ class Plot:
         self.label_state = {}  # 保存標籤勾選狀態
     def idvg_data(self, ax, data_list):
         self.visible = [True] * len(data_list)
+        self.labels = []
         for i, data in enumerate(data_list):
             temperature, x, y = data
             state = self.label_state.get(f"{temperature} K", True)  # 檢查標籤勾選狀態
@@ -52,6 +52,9 @@ class Plot:
                             markersize=2.5, visible=state, picker=5)
             self.lines.append(line)
             self.labels.append(f"{temperature} K")
+            print(f'self.labels最早出現',self.labels)
+            # 按照溫度排序，x[0]前面加"-"會變成由大到小
+            data_list.sort(key=lambda x: x[0])
         # 設定圖表標題和x軸、y軸標籤
         ax.set_title("IdVg data")
         ax.set_xlabel("Vg (V)")
@@ -76,6 +79,7 @@ class Plot:
         # 設定 x 軸和 y 軸刻度方向
         ax.tick_params(axis='x', direction='in')
         ax.tick_params(axis='y', direction='in')
+        # self.labels = []
         # 加入圖例
         #ax.legend(loc='best', bbox_to_anchor=(1.0, 1.05),prop =  {'size':9})
         #對y軸取log
@@ -113,16 +117,11 @@ class Plot:
         ax2.tick_params(axis='y', direction='in')
         # 加入圖例
         ax2.legend(bbox_to_anchor=(1.18, 1.05),prop =  {'size':10},loc='upper right')
-    def update_labels(self, data_list):
-        # 更新 self.labels 和 self.visible 列表的大小
-        for temperature, _, _ in data_list:
-            label = f"{temperature} K"
-            if label not in self.labels:
-                self.labels.append(label)
-                self.visible.append(True)
+        # self.labels = []
     def toggle_visibility(self, label):
         if label in self.labels:
             index = self.labels.index(label)
+            print(f'我點')
             self.visible[index] = not self.visible[index]
             vis = self.visible[index]
             self.lines[index].set_visible(vis)
